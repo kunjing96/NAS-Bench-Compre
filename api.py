@@ -25,18 +25,20 @@ class API():
 
 
 if __name__ == '__main__':
+    print(available_search_spaces())
+    print(available_search_strategies())
+    print(available_estimation_strategies())
     config = get_config(cfg_file=os.path.join('configs', 'base.yaml'))
     if config.OUTPUT:
         Path(config.OUTPUT).mkdir(parents=True, exist_ok=True)
     print(config)
     api = API(config=config)
-    print('='*10)
     print(api)
     print(api.config)
     print(api.search_space)
     print(api.search_strategy)
     print(api.estimation_strategy)
-    print('='*10)
-    print(available_search_spaces())
-    print(available_search_strategies())
-    print(available_estimation_strategies())
+    print('Search Start')
+    result = api.run()
+    print(result)
+    print('Search End')
