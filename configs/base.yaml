@@ -1,24 +1,18 @@
 SEARCHSPACE:
-  NAME: AutoFormerTiny
-  MINPARAMS: null # AutoFormerTiny/Small/Base | OFA_MBV3/MBV3L/Proxylexx/ResNet50
-  MAXPARAMS: null # AutoFormerTiny/Small/Base | OFA_MBV3/MBV3L/Proxylexx/ResNet50
-  MINFLOPS: null # AutoFormerTiny/Small/Base | OFA_MBV3/MBV3L/Proxylexx/ResNet50
-  MAXFLOPS: null # AutoFormerTiny/Small/Base | OFA_MBV3/MBV3L/Proxylexx/ResNet50
-  MINDELAY: null # AutoFormerTiny/Small/Base | OFA_MBV3/MBV3L/Proxylexx/ResNet50
-  MAXDELAY: null # AutoFormerTiny/Small/Base | OFA_MBV3/MBV3L/Proxylexx/ResNet50
+  NAME: OFA_ResNet50
 SEARCHSTRATEGY:
-  NAME: Random
+  NAME: AgingEvolution
   N: 10 # Random | AgingEvolution default: 1000
   MATUTEPROB: 1.0 # AgingEvolution
   PATIENCEFACTOR: 5 # AgingEvolution
-  TOURNAMENTSIZE: 10 # AgingEvolution
+  TOURNAMENTSIZE: 1 # AgingEvolution default: 10
   NUMPARENTS: 1 # AgingEvolution
   NUMUTATES: 1 # AgingEvolution default: 1 or 100
-  NUMPOPULATION: 4 # AgingEvolution default: 64
+  NUMPOPULATION: 1 # AgingEvolution default: 64
 ESTIMATIONSTRATEGY:
-  NAME: Base
+  NAME: OFA
   BATCHSIZE: 64 # AutoFormer | OFA
-  MODELPATH: model_ckpts/AutoFormer/supernet-tiny.pth # AutoFormer | OFA
+  MODELPATH: model_ckpts/OFA/ofa_resnet50_d=0+1+2_e=0.2+0.25+0.35_w=0.65+0.8+1.0 # AutoFormer | OFA
     # model_ckpts/AutoFormer/supernet-tiny.pth
     # model_ckpts/AutoFormer/supernet-small.pth
     # model_ckpts/AutoFormer/supernet-base.pth
@@ -26,13 +20,8 @@ ESTIMATIONSTRATEGY:
     # model_ckpts/OFA/ofa_mbv3_d234_e346_k357_w1.2
     # model_ckpts/OFA/ofa_proxyless_d234_e346_k357_w1.3
     # model_ckpts/OFA/ofa_resnet50_d=0+1+2_e=0.2+0.25+0.35_w=0.65+0.8+1.0
+  DATASET: EVO_IMNET # AutoFormer | OFA
+  DATAPATH: datasets/imagenet # AutoFormer | OFA
   NUMWORKERS: 10 # AutoFormer | OFA
-  PINMEM: true # AutoFormer | OFA
-  AMP: true # AutoFormer | OFA
-  # DEVICE: # AutoFormer
-  # GPU: # AutoFormer
-  # DISTRIBUTED: # AutoFormer
-  # DISTEVAL: # AutoFormer
-  NUMCLASSES: null # AutoFormer | OFA
 OUTPUT: output
 TAG: test

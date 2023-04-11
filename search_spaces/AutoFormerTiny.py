@@ -15,7 +15,7 @@ class AutoFormerTiny(Base):
         self.model = Vision_TransformerSuper(
                         img_size=224,
                         patch_size=16,
-                        embed_dim=max(self.choices['embed_dim']), depth=max(self.choices['depth']),
+                        embed_dim=256, depth=max(self.choices['depth']),
                         num_heads=max(self.choices['num_heads']),mlp_ratio=max(self.choices['mlp_ratio']),
                         qkv_bias=True, drop_rate=0.0,
                         drop_path_rate=0.1,

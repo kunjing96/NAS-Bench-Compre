@@ -19,7 +19,7 @@ class AgingEvolution(Base):
         print('mutation ......')
         if random.random() < self.config.MATUTEPROB:
             decoded_arch = self.search_space.decode(arch)
-            k = random.choices(self.search_space.choices.keys())
+            k = random.choice(list(self.search_space.choices.keys()))
             if k in ['depth']:
                 new_depth = random.choice(self.search_space.choices[k])
                 if new_depth > decoded_arch[k]:
@@ -29,12 +29,26 @@ class AgingEvolution(Base):
                     decoded_arch['mlp_ratio'] = decoded_arch['mlp_ratio'][:new_depth]
                     decoded_arch['num_heads'] = decoded_arch['num_heads'][:new_depth]
                 decoded_arch['depth'] = new_depth
-            elif isinstance(decoded_arch[k], list) and decoded_arch['depth'] and len(decoded_arch[k]) == decoded_arch['depth']:
-                i = random.choices(range(decoded_arch['depth']))
+            elif k in ['w']:
+                i = random.choice(range(len(decoded_arch[k])))
+                w_choice = [
+                    list(range(len(self.search_space.model.input_stem[0].out_channel_list))),
+                    list(range(len(self.search_space.model.input_stem[2].out_channel_list))),
+                ]
+                for _, block_idx in enumerate(self.search_space.model.grouped_block_index):
+                    stage_first_block = self.search_space.model.blocks[block_idx[0]]
+                    w_choice.append(
+                        list(range(len(stage_first_block.out_channel_list)))
+                    )
+                decoded_arch[k][i] = random.choice(w_choice[i])
+            elif isinstance(decoded_arch[k], list):
+                i = random.choice(range(len(decoded_arch[k])))
                 decoded_arch[k][i] = random.choice(self.search_space.choices[k])
             else:
                 decoded_arch[k] = random.choice(self.search_space.choices[k])
             return self.search_space.encode(decoded_arch)
+        else:
+            return arch
 
     def next_generation(self, population):
         next_generation = []

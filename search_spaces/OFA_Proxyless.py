@@ -16,12 +16,12 @@ class OFA_Proxyless(Base):
         self.model = ofa_net('ofa_proxyless_d234_e346_k357_w1.3', pretrained=False)
 
     def is_valid(self, arch):
-        assert isinstance(arch, tuple)
         decoded_arch = self.decode(arch)
         model = copy.deepcopy(self.model)
         model.set_active_subnet(**decoded_arch)
+        manual_subnet = model.get_active_subnet(preserve_weight=True)
         if self.config.MAXPARAMS or self.config.MINPARAMS:
-            params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+            params = sum(p.numel() for p in manual_subnet.parameters() if p.requires_grad)
             if self.config.MAXPARAMS and params > self.config.MAXPARAMS:
                 print('maximum parameters limit exceed')
                 return False
@@ -29,7 +29,7 @@ class OFA_Proxyless(Base):
                 print('under minimum parameters limit')
                 return False
         if self.config.MAXFLOPS or self.config.MINFLOPS:
-            flops, _ = profile(model, (1, 3, decoded_arch['res'], decoded_arch['res']))
+            flops, _ = profile(manual_subnet, (1, 3, decoded_arch['res'], decoded_arch['res']))
             if self.config.MAXFLOPS and flops > self.config.MAXFLOPS:
                 print('maximum flops limit exceed')
                 return False
@@ -47,10 +47,10 @@ class OFA_Proxyless(Base):
         return True
 
     def encode(self, decoded_arch):
-        return decoded_arch
+        return copy.deepcopy(decoded_arch)
 
     def decode(self, arch):
-        return arch
+        return copy.deepcopy(arch)
 
     def sample(self):
         arch = dict()
@@ -60,7 +60,7 @@ class OFA_Proxyless(Base):
                 v.append(random.choice(self.choices[k]))
             arch[k] = v
         arch['d'] = []
-        for _ in range(self.model.block_group_info):
+        for _ in range(len(self.model.block_group_info)):
             arch['d'].append(random.choice(self.choices['d']))
         arch['d'][-1] = 1
         arch['res'] = random.choice(self.choices['res'])

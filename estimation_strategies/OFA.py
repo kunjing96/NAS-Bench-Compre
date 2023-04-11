@@ -9,6 +9,7 @@ from lib.MetricLogger import MetricLogger
 from lib.download import download_url
 from estimation_strategies import _register
 from estimation_strategies.Base import Base
+from models.OFA.elastic_nn.utils import set_running_statistics
 
 
 @_register
@@ -19,13 +20,19 @@ class OFA(Base):
 
         self.device = torch.device(config.DEVICE)
 
-        dataset_val, config.NUMCLASSES = build_dataset(is_train=False, config=config, folder_name="train")
+        dataset_val, _ = build_dataset(is_train=False, config=config, folder_name="train")
         dataset_test, _ = build_dataset(is_train=False, config=config, folder_name="val")
 
-        _, valid_indexes = random_sample_valid_set(len(dataset_val), 10000)
+        train_indexes, valid_indexes = random_sample_valid_set(len(dataset_val), 10000)
 
+        sampler_train = torch.utils.data.sampler.SubsetRandomSampler(train_indexes[:2000])
         sampler_val = torch.utils.data.sampler.SubsetRandomSampler(valid_indexes)
 
+        self.train_loader = torch.utils.data.DataLoader(
+            dataset_val, batch_size=config.BATCHSIZE,
+            sampler=sampler_train, num_workers=config.NUMWORKERS,
+            pin_memory=config.PINMEM
+        )
         self.val_loader = torch.utils.data.DataLoader(
             dataset_val, batch_size=config.BATCHSIZE,
             sampler=sampler_val, num_workers=config.NUMWORKERS,
@@ -39,10 +46,8 @@ class OFA(Base):
 
         url_base = "https://hanlab.mit.edu/files/OnceForAll/ofa_nets/"
         dir_path, filename = os.path.dirname(config.MODELPATH), os.path.basename(config.MODELPATH)
-        net_id = config.MODELPATH if 'resnet50' not in config.MODELPATH else filename.split('_d=')[0]
-
         self.model = copy.deepcopy(self.search_space.model)
-        init = torch.load(download_url(url_base + net_id, model_dir=dir_path), map_location="cpu")["state_dict"]
+        init = torch.load(download_url(url_base + filename, model_dir=dir_path), map_location="cpu")["state_dict"]
         self.model.load_state_dict(init)
 
     @torch.no_grad()
@@ -53,8 +58,8 @@ class OFA(Base):
         config = self.search_space.decode(retrain_config)
         model_module = unwrap_model(self.model)
         model_module.set_active_subnet(**config)
-        manual_subnet = model_module.get_active_subnet(preserve_weight=True)
-        manual_subnet.to(self.device)
+        manual_subnet = model_module.get_active_subnet(preserve_weight=True).to(self.device)
+        set_running_statistics(manual_subnet, self.train_loader)
         manual_subnet.eval()
         if 'res' in config.keys():
             data_loader.dataset.transform = build_transform(is_train=False, config=self.config, img_size=config['res'])
@@ -83,7 +88,6 @@ class OFA(Base):
             .format(top1=metric_logger.acc1, top5=metric_logger.acc5))
 
         return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
-
 
     def __call__(self, arch):
         val_res = self.evaluate(self.val_loader, amp=self.config.AMP, retrain_config=arch)

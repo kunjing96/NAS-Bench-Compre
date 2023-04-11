@@ -1,10 +1,10 @@
 from search_spaces import _register
-from search_spaces.Base import Base
+from search_spaces.OFA_MBV3 import OFA_MBV3
 from models.OFA.model_zoo import ofa_net
 
 
 @_register
-class OFA_MBV3(Base):
+class OFA_MBV3L(OFA_MBV3):
 
     def __init__(self, config):
         super(OFA_MBV3, self).__init__(config)

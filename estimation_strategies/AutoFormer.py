@@ -26,7 +26,7 @@ class AutoFormer(Base):
         # random.seed(seed)
         # torch.backends.cudnn.benchmark = True
 
-        dataset_val, config.NUMCLASSES = build_dataset(is_train=False, config=config, folder_name="subImageNet")
+        dataset_val, _ = build_dataset(is_train=False, config=config, folder_name="subImageNet")
         dataset_test, _ = build_dataset(is_train=False, config=config, folder_name="val")
 
         # if config.DISTRIBUTED:
@@ -68,8 +68,8 @@ class AutoFormer(Base):
         # if config.DISTRIBUTED:
         #     self.model = torch.nn.parallel.DistributedDataParallel(self.model, device_ids=[config.GPU])
         #     self.model_without_ddp = self.model.module
-        # self.model_without_ddp.load_state_dict(torch.load(config.MODELPATH))
-        self.model.load_state_dict(torch.load(config.MODELPATH))
+        # self.model_without_ddp.load_state_dict(torch.load(config.MODELPATH)['model'])
+        self.model.load_state_dict(torch.load(config.MODELPATH)['model'])
 
     @torch.no_grad()
     def evaluate(self, data_loader, amp=True, retrain_config=None):

@@ -14,15 +14,15 @@ class OFA_ResNet50(Base):
     def __init__(self, config):
         super(OFA_ResNet50, self).__init__(config)
         self.choices = {'w': [0.65, 0.8, 1.0], 'e': [0.2, 0.25, 0.35], 'd': [0, 1, 2], 'res': [128, 160, 192, 224]}
-        self.model = ofa_net('ofa_resnet50_d=0+1+2_e=0.2+0.25+0.35_w=0.65+0.8+1.0', pretrained=False)
+        self.model = ofa_net('ofa_resnet50', pretrained=False)
 
     def is_valid(self, arch):
-        assert isinstance(arch, tuple)
         decoded_arch = self.decode(arch)
         model = copy.deepcopy(self.model)
         model.set_active_subnet(**decoded_arch)
+        manual_subnet = model.get_active_subnet(preserve_weight=True)
         if self.config.MAXPARAMS or self.config.MINPARAMS:
-            params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+            params = sum(p.numel() for p in manual_subnet.parameters() if p.requires_grad)
             if self.config.MAXPARAMS and params > self.config.MAXPARAMS:
                 print('maximum parameters limit exceed')
                 return False
@@ -30,7 +30,7 @@ class OFA_ResNet50(Base):
                 print('under minimum parameters limit')
                 return False
         if self.config.MAXFLOPS or self.config.MINFLOPS:
-            flops, _ = profile(model, (1, 3, decoded_arch['res'], decoded_arch['res']))
+            flops, _ = profile(manual_subnet, (1, 3, decoded_arch['res'], decoded_arch['res']))
             if self.config.MAXFLOPS and flops > self.config.MAXFLOPS:
                 print('maximum flops limit exceed')
                 return False
@@ -48,10 +48,10 @@ class OFA_ResNet50(Base):
         return True
 
     def encode(self, decoded_arch):
-        return decoded_arch
+        return copy.deepcopy(decoded_arch)
 
     def decode(self, arch):
-        return arch
+        return copy.deepcopy(arch)
 
     def sample(self):
         arch = dict()
