@@ -4,7 +4,7 @@ import logging
 
 from search_spaces import _register
 from search_spaces.Base import Base
-from models.AutoFormer import Vision_TransformerSuper
+from lib.models.AutoFormer import Vision_TransformerSuper
 
 
 @_register

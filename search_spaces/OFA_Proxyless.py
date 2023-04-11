@@ -4,8 +4,8 @@ import logging
 
 from search_spaces import _register
 from search_spaces.Base import Base
-from models.OFA.model_zoo import ofa_net
-from models.OFA.utils.flops_counter import profile
+from lib.models.OFA.model_zoo import ofa_net
+from lib.models.OFA.utils.flops_counter import profile
 
 
 @_register

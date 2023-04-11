@@ -1,6 +1,6 @@
 from search_spaces import _register
 from search_spaces.OFA_MBV3 import OFA_MBV3
-from models.OFA.model_zoo import ofa_net
+from lib.models.OFA.model_zoo import ofa_net
 
 
 @_register

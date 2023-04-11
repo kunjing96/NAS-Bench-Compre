@@ -1,6 +1,6 @@
 from search_spaces import _register
 from search_spaces.AutoFormerTiny import AutoFormerTiny
-from models.AutoFormer import Vision_TransformerSuper
+from lib.models.AutoFormer import Vision_TransformerSuper
 
 
 @_register
