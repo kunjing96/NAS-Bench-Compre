@@ -7,6 +7,7 @@ import copy
 import time
 import torch
 import torch.nn as nn
+import logging
 
 __all__ = [
     "mix_images",
@@ -127,7 +128,7 @@ def measure_net_latency(
             n_sample = 50
         if get_net_device(net) != torch.device("cpu"):
             if not clean:
-                print("move net to cpu for measuring cpu latency")
+                logging.info("move net to cpu for measuring cpu latency")
             net = copy.deepcopy(net).cpu()
     elif l_type == "gpu":
         if fast:
@@ -149,7 +150,7 @@ def measure_net_latency(
             used_time = (time.time() - inner_start_time) * 1e3  # ms
             measured_latency["warmup"].append(used_time)
             if not clean:
-                print("Warmup %d: %.3f" % (i, used_time))
+                logging.info("Warmup %d: %.3f" % (i, used_time))
         outer_start_time = time.time()
         for i in range(n_sample):
             net(images)
@@ -178,11 +179,11 @@ def get_net_info(net, input_shape=(3, 224, 224), measure_latency=None, print_inf
         net_info["%s latency" % l_type] = {"val": latency, "hist": measured_latency}
 
     if print_info:
-        print(net)
-        print("Total training params: %.2fM" % (net_info["params"]))
-        print("Total FLOPs: %.2fM" % (net_info["flops"]))
+        logging.info(net)
+        logging.info("Total training params: %.2fM" % (net_info["params"]))
+        logging.info("Total FLOPs: %.2fM" % (net_info["flops"]))
         for l_type in latency_types:
-            print(
+            logging.info(
                 "Estimated %s latency: %.3fms"
                 % (l_type, net_info["%s latency" % l_type]["val"])
             )

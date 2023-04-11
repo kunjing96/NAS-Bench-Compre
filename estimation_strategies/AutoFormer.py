@@ -1,9 +1,9 @@
 import torch
 import copy
-# import numpy as np
-# import random
 from timm.utils.model import unwrap_model
 from timm.utils import accuracy
+import logging
+import tqdm
 
 # from lib.ddp import init_distributed_mode, get_rank, get_world_size
 from lib.datasets import build_dataset
@@ -34,7 +34,7 @@ class AutoFormer(Base):
         #     global_rank = get_rank()
         #     if config.DISTEVAL:
         #         if len(dataset_val) % num_tasks != 0:
-        #             print(
+        #             logging.warning(
         #                 'Warning: Enabling distributed evaluation with an eval dataset not divisible by process number. '
         #                 'This will slightly alter validation results as extra duplicate entries are added to achieve '
         #                 'equal num of samples per-process.')
@@ -81,11 +81,12 @@ class AutoFormer(Base):
         model_module = unwrap_model(self.model)
         model_module.set_sample_config(config=config)
 
-        print("sampled model config: {}".format(config))
-        parameters = model_module.get_sampled_params_numel(config)
-        print("sampled model parameters: {}".format(parameters))
+        # logging.info("sampled model config: {}".format(config))
+        # parameters = model_module.get_sampled_params_numel(config)
+        # logging.info("sampled model parameters: {}".format(parameters))
 
-        for images, target in metric_logger.log_every(data_loader, 10, header):
+        # for images, target in metric_logger.log_every(data_loader, 10, header):
+        for images, target in tqdm.tqdm(data_loader):
             images = images.to(self.device, non_blocking=True)
             target = target.to(self.device, non_blocking=True)
             # compute output
@@ -102,13 +103,15 @@ class AutoFormer(Base):
             metric_logger.meters['acc5'].update(acc5.item(), n=batch_size)
         # gather the stats from all processes
         # metric_logger.synchronize_between_processes()
-        print('* Acc@1 {top1.global_avg:.3f} Acc@5 {top5.global_avg:.3f}'
-            .format(top1=metric_logger.acc1, top5=metric_logger.acc5))
+        # logging.info('* Acc@1 {top1.global_avg:.3f} Acc@5 {top5.global_avg:.3f}'
+        #     .format(top1=metric_logger.acc1, top5=metric_logger.acc5))
 
         return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
 
 
     def __call__(self, arch):
+        logging.info("Sampled arch: {}".format(arch))
         val_res = self.evaluate(self.val_loader, amp=self.config.AMP, retrain_config=arch)
         test_res = self.evaluate(self.test_loader, amp=self.config.AMP, retrain_config=arch)
+        logging.info("Score: {}\tPerformence: {}".format(val_res, test_res))
         return val_res['acc1'], test_res['acc1']

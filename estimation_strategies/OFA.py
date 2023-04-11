@@ -3,6 +3,8 @@ import torch
 import copy
 from timm.utils.model import unwrap_model
 from timm.utils import accuracy
+import logging
+import tqdm
 
 from lib.datasets import build_dataset, random_sample_valid_set, build_transform
 from lib.MetricLogger import MetricLogger
@@ -64,11 +66,12 @@ class OFA(Base):
         if 'res' in config.keys():
             data_loader.dataset.transform = build_transform(is_train=False, config=self.config, img_size=config['res'])
 
-        print("sampled model config: {}".format(config))
-        parameters = sum(p.numel() for p in manual_subnet.parameters() if p.requires_grad)
-        print("sampled model parameters: {}".format(parameters))
+        # logging.info("sampled model config: {}".format(config))
+        # parameters = sum(p.numel() for p in manual_subnet.parameters() if p.requires_grad)
+        # logging.info("sampled model parameters: {}".format(parameters))
 
-        for images, target in metric_logger.log_every(data_loader, 10, header):
+        # for images, target in metric_logger.log_every(data_loader, 10, header):
+        for images, target in tqdm.tqdm(data_loader):
             images = images.to(self.device, non_blocking=True)
             target = target.to(self.device, non_blocking=True)
             # compute output
@@ -84,12 +87,14 @@ class OFA(Base):
             metric_logger.meters['acc1'].update(acc1.item(), n=batch_size)
             metric_logger.meters['acc5'].update(acc5.item(), n=batch_size)
 
-        print('* Acc@1 {top1.global_avg:.3f} Acc@5 {top5.global_avg:.3f}'
-            .format(top1=metric_logger.acc1, top5=metric_logger.acc5))
+        # logging.info('* Acc@1 {top1.global_avg:.3f} Acc@5 {top5.global_avg:.3f}'
+        #     .format(top1=metric_logger.acc1, top5=metric_logger.acc5))
 
         return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
 
     def __call__(self, arch):
+        logging.info("Sampled arch: {}".format(arch))
         val_res = self.evaluate(self.val_loader, amp=self.config.AMP, retrain_config=arch)
         test_res = self.evaluate(self.test_loader, amp=self.config.AMP, retrain_config=arch)
+        logging.info("Score: {}\tPerformence: {}".format(val_res, test_res))
         return val_res['acc1'], test_res['acc1']

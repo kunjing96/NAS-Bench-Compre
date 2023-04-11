@@ -1,5 +1,6 @@
 import random
 import copy
+import logging
 
 from search_spaces import _register
 from search_spaces.Base import Base
@@ -33,26 +34,26 @@ class AutoFormerTiny(Base):
         if self.config.MAXPARAMS or self.config.MINPARAMS:
             params = model.get_sampled_params_numel(decoded_arch)
             if self.config.MAXPARAMS and params > self.config.MAXPARAMS:
-                print('maximum parameters limit exceed')
+                logging.info('maximum parameters limit exceed')
                 return False
             if self.config.MINPARAMS and params < self.config.MINPARAMS:
-                print('under minimum parameters limit')
+                logging.info('under minimum parameters limit')
                 return False
         if self.config.MAXFLOPS or self.config.MINFLOPS:
             flops = 0 # TODO: get FLOPs
             if self.config.MAXFLOPS and flops > self.config.MAXFLOPS:
-                print('maximum flops limit exceed')
+                logging.info('maximum flops limit exceed')
                 return False
             if self.config.MINFLOPS and flops < self.config.MINFLOPS:
-                print('under minimum flops limit')
+                logging.info('under minimum flops limit')
                 return False
         if self.config.MAXDELAY is not None or self.config.MINDELAY is not None:
             delay = 0 # TODO: get Delay
             if self.config.MAXDELAY and delay > self.config.MAXDELAY:
-                print('parameters limit exceed')
+                logging.info('parameters limit exceed')
                 return False
             if self.config.MINDELAY and delay < self.config.MINDELAY:
-                print('under minimum parameters limit')
+                logging.info('under minimum parameters limit')
                 return False
         return True
 

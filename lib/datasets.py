@@ -6,6 +6,7 @@ from torchvision.datasets.folder import ImageFolder, default_loader
 from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from timm.data import create_transform
 import torch
+import logging
 
 
 class Flowers(ImageFolder):
@@ -17,7 +18,7 @@ class Flowers(ImageFolder):
         label_path = os.path.join(root, 'imagelabels.mat')
         split_path = os.path.join(root, 'setid.mat')
 
-        print('Dataset Flowers is trained with resolution 224!')
+        logging.warning('Dataset Flowers is trained with resolution 224!')
 
         # labels
         labels = sio.loadmat(label_path)['labels'][0]
@@ -61,7 +62,7 @@ class Cars196(ImageFolder, datasets.CIFAR10):
 
         self.target_transform = target_transform
         self.loader = default_loader
-        print('Dataset Cars196 is trained with resolution 224!')
+        logging.warning('Dataset Cars196 is trained with resolution 224!')
 
         self.samples = []
         self.nb_classes = 196

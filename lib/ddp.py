@@ -1,6 +1,7 @@
 import os
 import torch
 import torch.distributed as dist
+import logging
 
 
 def is_dist_avail_and_initialized():
@@ -55,7 +56,7 @@ def init_distributed_mode(config):
         config.RANK = int(os.environ['SLURM_PROCID'])
         config.GPU = config.RANK % torch.cuda.device_count()
     else:
-        print('Not using distributed mode')
+        logging.warning('Not using distributed mode')
         config.DISTRIBUTED = False
         return
 
@@ -63,7 +64,7 @@ def init_distributed_mode(config):
 
     torch.cuda.set_device(config.GPU)
     config.DISTBACKEND = 'nccl'
-    print('| distributed init (rank {}): {}'.format(config.RANK, config.DISTURL), flush=True)
+    logging.info('| distributed init (rank {}): {}'.format(config.RANK, config.DISTURL), flush=True)
     torch.distributed.init_process_group(backend=config.DISTBACKEND, init_method=config.DISTURL, world_size=config.WORLDSIZE, rank=config.RANK)
     torch.distributed.barrier()
     setup_for_distributed(config.RANK == 0)

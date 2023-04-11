@@ -6,6 +6,7 @@ import numpy as np
 import os
 import sys
 import torch
+import logging
 
 try:
     from urllib import urlretrieve
@@ -144,7 +145,7 @@ def write_log(logs_path, log_str, prefix="valid", should_print=True, mode="a"):
             fout.write(log_str + "\n")
             fout.flush()
     if should_print:
-        print(log_str)
+        logging.info(log_str)
 
 
 def pairwise_accuracy(la, lb, n_samples=200000):

@@ -1,10 +1,13 @@
 import os
 from lib.config import get_config
 from pathlib import Path
+import logging
+import torch
 
 from search_spaces import get_search_space, available_search_spaces
 from search_strategies import get_search_strategy, available_search_strategies
 from estimation_strategies import get_estimation_strategy, available_estimation_strategies
+from lib.logger import prepare_logger
 
 
 class API():
@@ -25,22 +28,35 @@ class API():
 
 
 if __name__ == '__main__':
-    print(available_search_spaces())
-    print(available_search_strategies())
-    print(available_estimation_strategies())
     config = get_config(cfg_file=os.path.join('configs', 'base.yaml'))
     if config.OUTPUT:
         Path(config.OUTPUT).mkdir(parents=True, exist_ok=True)
-    print(config)
+
+    prepare_logger(config=config)
+
+    logging.info('Available search spaces:')
+    logging.info(available_search_spaces())
+    logging.info('Available search strategies:')
+    logging.info(available_search_strategies())
+    logging.info('Available estimation strategies:')
+    logging.info(available_estimation_strategies())
+
     api = API(config=config)
-    print(api)
-    print(api.config)
-    print(api.search_space)
-    print(api.search_strategy)
-    print(api.estimation_strategy)
-    print('Search Start')
-    optimal, history, time_cost = api.run()
-    print(optimal)
-    print(history)
-    print(time_cost)
-    print('Search End')
+
+    logging.info('='*5 + 'Search Start' + '='*5)
+    best, history, time_cost = api.run()
+    logging.info('*Best:')
+    logging.info(best)
+    logging.info('History:')
+    logging.info(history)
+    logging.info('Time cost:')
+    logging.info(time_cost)
+    torch.save(
+        {
+            'best': best,
+            'history': history,
+            'time_cost': time_cost
+        },
+        os.path.join(config.OUTPUT, 'checkpoint.pt')
+    )
+    logging.info('='*5 + 'Search End' + '='*5)

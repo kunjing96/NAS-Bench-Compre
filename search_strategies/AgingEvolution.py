@@ -1,6 +1,7 @@
 import time
 import random
 from functools import cmp_to_key
+import logging
 
 from search_strategies import _register
 from search_strategies.Base import Base
@@ -16,7 +17,7 @@ class AgingEvolution(Base):
         else: return 0
 
     def mutate(self, arch):
-        print('mutation ......')
+        logging.info('mutation ......')
         if random.random() < self.config.MATUTEPROB:
             decoded_arch = self.search_space.decode(arch)
             k = random.choice(list(self.search_space.choices.keys()))
