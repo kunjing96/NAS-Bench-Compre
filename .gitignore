@@ -1,5 +1,4 @@
 /output/
 /model_ckpts/
+/datasets/
 __pycache__
-*/*@
-
