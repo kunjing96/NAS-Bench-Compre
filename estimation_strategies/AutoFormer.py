@@ -62,8 +62,7 @@ class AutoFormer(Base):
             pin_memory=config.PINMEM, drop_last=False
         )
 
-        self.model = copy.deepcopy(self.search_space.model)
-        self.model.to(self.device)
+        self.model = copy.deepcopy(self.search_space.model).to(self.device)
         # self.model_without_ddp = self.model
         # if config.DISTRIBUTED:
         #     self.model = torch.nn.parallel.DistributedDataParallel(self.model, device_ids=[config.GPU])
@@ -74,7 +73,7 @@ class AutoFormer(Base):
     @torch.no_grad()
     def evaluate(self, data_loader, amp=True, retrain_config=None):
         metric_logger = MetricLogger(delimiter="  ")
-        header = 'Test:'
+        # header = 'Test:'
 
         self.model.eval()
         config = self.search_space.decode(retrain_config)
