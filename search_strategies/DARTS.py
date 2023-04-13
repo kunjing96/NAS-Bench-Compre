@@ -3,8 +3,8 @@ import copy
 import torch
 import torch.nn.functional as F
 from timm.utils import accuracy
-import tqdm
 import logging
+from tqdm.contrib import tzip
 
 from search_strategies import _register
 from search_strategies.Base import Base
@@ -34,12 +34,12 @@ class DARTS(Base):
         self.valid_loader = torch.utils.data.DataLoader(self.train_data, batch_size=self.config.BATCHSIZE, sampler=valid_sampler, num_workers=self.config.NUMWORKERS, pin_memory=self.config.PINMEM)
 
         # model
-        self.model = copy.deepcopy(self.search_space.model).to(self.device)
+        self.model = copy.deepcopy(self.search_space.search_model).to(self.device)
 
         # weights optimizer
         self.weight_optim = torch.optim.SGD(self.model.weights(), self.config.WEIGHTLR, momentum=self.config.WEIGHTMOMENTUM, weight_decay=self.config.WEIGHTWEIGHTDECAY)
         # alphas optimizer
-        self.alpha_optim = torch.optim.Adam(self.model.alphas(), self.config.ALPHALR, betas=(self.config.ALPHABETA1, self.config.ALPHABETA1), weight_decay=self.config.ALPHAWEIGHTDECAY)
+        self.alpha_optim = torch.optim.Adam(self.model.alphas(), self.config.ALPHALR, betas=(self.config.ALPHABETA1, self.config.ALPHABETA2), weight_decay=self.config.ALPHAWEIGHTDECAY)
 
         self.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.weight_optim, self.config.EPOCHS, eta_min=self.config.MINWEIGHTLR)
         self.architect = Architect(self.model, self.config.WEIGHTMOMENTUM, self.config.WEIGHTWEIGHTDECAY)
@@ -51,7 +51,7 @@ class DARTS(Base):
         lr = self.lr_scheduler.get_lr()[0]
         self.model.train()
 
-        for _, ((trn_X, trn_y), (val_X, val_y)) in tqdm.tqdm(enumerate(zip(self.train_loader, self.valid_loader))):
+        for (trn_X, trn_y), (val_X, val_y) in tzip(self.train_loader, self.valid_loader):
             trn_X, trn_y = trn_X.to(self.device, non_blocking=True), trn_y.to(self.device, non_blocking=True)
             val_X, val_y = val_X.to(self.device, non_blocking=True), val_y.to(self.device, non_blocking=True)
 

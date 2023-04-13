@@ -9,7 +9,6 @@ from lib.datasets import build_dataset
 from lib.MetricLogger import MetricLogger
 from estimation_strategies import _register
 from estimation_strategies.Base import Base
-from lib.models.DARTS.net import Network
 
 
 @_register
@@ -49,10 +48,12 @@ class DARTS(Base):
 
         model.eval()
 
-        for _, (X, y) in tqdm.tqdm(enumerate(data_loader)):
+        for X, y in tqdm.tqdm(data_loader):
             X, y = X.to(self.device, non_blocking=True), y.to(self.device, non_blocking=True)
 
             logits = model(X)
+            if isinstance(logits, tuple):
+                logits = logits[0]
 
             acc1, acc5 = accuracy(logits, y, topk=(1, 5))
 
@@ -63,7 +64,7 @@ class DARTS(Base):
         return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
 
     def retrain_and_eval(self, genotype):
-        self.model = Network(self.input_size, self.input_channels, 36, self.n_classes, 20, self.config.AUXWEIGHT>0, genotype).to(self.device)
+        self.model = self.search_space.model_cls(self.input_size, self.input_channels, 36, self.n_classes, 20, self.config.AUXWEIGHT>0, genotype).to(self.device)
         # weights optimizer
         self.optimizer = torch.optim.SGD(self.model.parameters(), self.config.LR, momentum=self.config.MOMENTUM, weight_decay=self.config.WEIGHTDECAY)
         self.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, self.config.EPOCHS)
@@ -72,7 +73,7 @@ class DARTS(Base):
         best_top1 = 0.
         best_test_res = None
         # training loop
-        for epoch in range(self.config.EPOCHS):
+        for epoch in tqdm.tqdm(range(self.config.EPOCHS)):
             self.lr_scheduler.step()
             drop_prob = self.config.DROPPATHPROB * epoch / self.config.EPOCHS
             model_module.drop_path_prob(drop_prob)

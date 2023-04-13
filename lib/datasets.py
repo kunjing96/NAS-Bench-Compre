@@ -7,6 +7,7 @@ from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from timm.data import create_transform
 import torch
 import logging
+import numpy as np
 
 
 class Flowers(ImageFolder):
@@ -190,6 +191,13 @@ def build_transform(is_train, config, img_size=None):
     if img_size is None:
         img_size = config.INPUTSIZE
     resize_im = img_size > 32
+    if config.DATASET in ['CIFAR10', 'CIFAR100']:
+        mean = [0.49139968, 0.48215827, 0.44653124]
+        std = [0.24703233, 0.24348505, 0.26158768]
+    elif config.DATASET in ['IMNET', 'EVO_IMNET']:
+        mean = IMAGENET_DEFAULT_MEAN
+        std = IMAGENET_DEFAULT_STD
+
     if is_train:
         # this should always dispatch to transforms_imagenet_train
         transform = create_transform(
@@ -201,6 +209,8 @@ def build_transform(is_train, config, img_size=None):
             re_prob=config.REPROB,
             re_mode=config.REMODE,
             re_count=config.RECOUNT,
+            mean=mean,
+            std=std,
         )
         if not resize_im:
             # replace RandomResizedCropAndInterpolation with
@@ -218,7 +228,10 @@ def build_transform(is_train, config, img_size=None):
         t.append(transforms.CenterCrop(img_size))
 
     t.append(transforms.ToTensor())
-    t.append(transforms.Normalize(IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD))
+    t.append(transforms.Normalize(mean, std))
+
+    if config.CUTOUT > 0:
+        t.append(Cutout(config.CUTOUT))
     return transforms.Compose(t)
 
 
@@ -232,3 +245,26 @@ def random_sample_valid_set(train_size, valid_size):
     valid_indexes = rand_indexes[:valid_size]
     train_indexes = rand_indexes[valid_size:]
     return train_indexes, valid_indexes
+
+
+class Cutout(object):
+    def __init__(self, length):
+        self.length = length
+
+    def __call__(self, img):
+        h, w = img.size(1), img.size(2)
+        mask = np.ones((h, w), np.float32)
+        y = np.random.randint(h)
+        x = np.random.randint(w)
+
+        y1 = np.clip(y - self.length // 2, 0, h)
+        y2 = np.clip(y + self.length // 2, 0, h)
+        x1 = np.clip(x - self.length // 2, 0, w)
+        x2 = np.clip(x + self.length // 2, 0, w)
+
+        mask[y1: y2, x1: x2] = 0.
+        mask = torch.from_numpy(mask)
+        mask = mask.expand_as(img)
+        img *= mask
+
+        return img

@@ -1,14 +1,11 @@
 import time
 import torch
 import torch.nn.functional as F
-from timm.utils import accuracy
-import tqdm
 import logging
 import math
 
 from search_strategies import _register
 from search_strategies.DARTS import DARTS
-from lib.MetricLogger import MetricLogger
 
 
 @_register
