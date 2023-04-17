@@ -2,7 +2,7 @@
 import torch
 import torch.nn as nn
 
-import lib.models.DARTS.genotypes as gt
+from lib.models.DARTS import genotypes as gt
 
 
 OPS = {
