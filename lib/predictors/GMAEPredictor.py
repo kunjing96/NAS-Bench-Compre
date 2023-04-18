@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from torch_geometric.nn import GCNConv, SGConv, SAGEConv, GATConv, GraphConv, GINConv
 from torch_geometric.utils import dropout_adj
 
-from lib.predictor import _register
+from lib.predictors import _register
 
 
 class AvgPooling(torch.nn.Module):

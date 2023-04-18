@@ -10,7 +10,7 @@ import random
 
 from search_strategies import _register
 from search_strategies.Base import Base
-from lib.predictor import get_predictor
+from lib.predictors import get_predictor
 from lib.arch_datasets import Dataset
 from lib.loss import BPRLoss, calculate_fisher
 
