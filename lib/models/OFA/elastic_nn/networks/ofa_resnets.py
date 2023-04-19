@@ -121,7 +121,7 @@ class OFAResNets(ResNets):
     def name():
         return "OFAResNets"
 
-    def forward(self, x):
+    def forward(self, x, pre_GAP=False):
         for layer in self.input_stem:
             if (
                 self.input_stem_skipping > 0
@@ -137,6 +137,8 @@ class OFAResNets(ResNets):
             active_idx = block_idx[: len(block_idx) - depth_param]
             for idx in active_idx:
                 x = self.blocks[idx](x)
+        if pre_GAP:
+            return x
         x = self.global_avg_pool(x)
         x = self.classifier(x)
         return x

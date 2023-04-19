@@ -1,5 +1,12 @@
-available_measures = []
-_measure_impls = {}
+import os
+import glob
+
+
+__PROXY_DICT = {}
+
+
+def available_proxy():
+    return __PROXY_DICT.keys()
 
 
 def measure(name, bn=True, copy_net=True, force_clean=True, **impl_args):
@@ -18,50 +25,15 @@ def measure(name, bn=True, copy_net=True, force_clean=True, **impl_args):
                 gc.collect()
             return ret
 
-        global _measure_impls
-        if name in _measure_impls:
+        if name in __PROXY_DICT:
             raise KeyError(f'Duplicated measure! {name}')
-        available_measures.append(name)
-        _measure_impls[name] = measure_impl
+        __PROXY_DICT.update({name: measure_impl})
         return func
     return make_impl
 
 
 def calc_measure(name, net, device, *args, **kwargs):
-    return _measure_impls[name](net, device, *args, **kwargs)
+    return __PROXY_DICT[name](net, device, *args, **kwargs)
 
 
-def load_all():
-    from . import plain
-    from . import grad_norm
-    from . import l2_norm
-    from . import snip
-    from . import grasp
-    from . import fisher
-    from . import jacob_cor
-    from . import jacob_cor_logdet
-    from . import epe_score
-    from . import synflow
-    from . import phi_score
-    from . import phi_score_with_data
-    from . import zen_score
-    from . import zen_score_with_data
-    from . import zen_score_cossim
-    from . import zen_score_with_data_cossim
-    from . import ssl_score
-    from . import bundle_entropy
-    from . import dyn_isometry
-    from . import layerwise_dyn_isometry
-    from . import feature_distance
-    from . import resp_sens
-    from . import act_hamming
-    from . import grad_hamming
-    from . import act_grad_hamming
-    from . import act_cor
-    from . import grad_cor
-    from . import act_grad_cor
-    from . import act_grad_cor_weighted
-
-
-# TODO: should we do that by default?
-load_all()
+__import__(name="lib.proxies." + os.path.basename(os.path.dirname(__file__)), fromlist=[os.path.splitext(os.path.basename(f))[0] for f in glob.glob(os.path.join(os.path.dirname(__file__), "[!_]*.py"))])

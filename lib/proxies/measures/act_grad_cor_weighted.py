@@ -1,6 +1,6 @@
-import torch, numpy as np
+import numpy as np
 
-from . import measure
+from lib.proxies.measures import measure
 
 
 @measure('act_grad_cor_weighted', bn=True, mode='param')
@@ -63,6 +63,8 @@ def compute_act_grad_cor_weighted(net, device, inputs, targets, mode, loss_fn, s
         en=(sp+1)*N//split_data
 
         outputs = net(inputs[st:en])
+        if isinstance(outputs, tuple):
+            outputs = outputs[0]
         loss = loss_fn(outputs, targets[st:en])
         loss.backward()
         #if net.N != 0:

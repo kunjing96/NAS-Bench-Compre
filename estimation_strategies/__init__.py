@@ -14,6 +14,8 @@ def get_estimation_strategy(config, search_space):
 
 
 def _register(cls):
+    if cls.__name__ in __ESTIMATION_STRATEGY_DICT:
+        raise KeyError(f'Duplicated estimation strategy! {cls.__name__}')
     __ESTIMATION_STRATEGY_DICT.update({cls.__name__: cls})
     return cls
 

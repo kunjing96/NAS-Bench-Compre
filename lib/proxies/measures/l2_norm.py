@@ -1,5 +1,5 @@
-from . import measure
-from ..p_utils import get_layer_metric_array, sum_arr
+from lib.proxies.measures import measure
+from lib.proxies.p_utils import get_layer_metric_array, sum_arr
 
 
 @measure('l2_norm', copy_net=False, mode='param')

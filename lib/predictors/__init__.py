@@ -14,6 +14,8 @@ def get_predictor(n_vocab, config):
 
 
 def _register(cls):
+    if cls.__name__ in __PREDICTOR_DICT:
+        raise KeyError(f'Duplicated predictor! {cls.__name__}')
     __PREDICTOR_DICT.update({cls.__name__: cls})
     return cls
 

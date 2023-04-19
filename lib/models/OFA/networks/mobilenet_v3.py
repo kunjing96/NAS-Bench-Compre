@@ -31,11 +31,13 @@ class MobileNetV3(MyNetwork):
         self.feature_mix_layer = feature_mix_layer
         self.classifier = classifier
 
-    def forward(self, x):
+    def forward(self, x, pre_GAP=False):
         x = self.first_conv(x)
         for block in self.blocks:
             x = block(x)
         x = self.final_expand_layer(x)
+        if pre_GAP:
+            return x
         x = self.global_avg_pool(x)  # global average pooling
         x = self.feature_mix_layer(x)
         x = x.view(x.size(0), -1)

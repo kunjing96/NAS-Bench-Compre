@@ -28,7 +28,7 @@ class API():
 
 
 if __name__ == '__main__':
-    config = get_config(cfg_file=os.path.join('configs', 'GMAENAS.yaml'))
+    config = get_config(cfg_file=os.path.join('configs', 'TrainingFreeNAS.yaml'))
     if config.OUTPUT:
         Path(config.OUTPUT).mkdir(parents=True, exist_ok=True)
 

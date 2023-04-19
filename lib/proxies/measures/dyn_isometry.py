@@ -1,6 +1,6 @@
 import torch, numpy as np
 
-from . import measure
+from lib.proxies.measures import measure
 
 
 def get_batch_jacobian(net, x, y):
@@ -8,7 +8,7 @@ def get_batch_jacobian(net, x, y):
     x.requires_grad_(True)
     jacob = torch.autograd.functional.jacobian(net, x).detach()
     in_dim  = int( np.prod(list(x.size())[1:]) )
-    out_dim = int( net.classifier.out_features ) if hasattr(net, 'classifier') else int( net.num_classes )
+    out_dim = int( net.classifier.out_features ) if hasattr(net, 'classifier') else int( net.n_classes )
     #jacob = jacob.view(y.size(0), out_dim, x.size(0), in_dim).mean(dim=(0, 2))
     jacob = torch.sum(jacob.view(y.size(0), out_dim, x.size(0), in_dim), 2)
     return jacob

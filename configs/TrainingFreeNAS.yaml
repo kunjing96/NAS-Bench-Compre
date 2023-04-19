@@ -1,0 +1,31 @@
+SEARCHSPACE:
+  NAME: DARTS
+SEARCHSTRATEGY:
+  NAME: Random
+  N: 10 # Random | AgingEvolution default: 1000
+ESTIMATIONSTRATEGY:
+  NAME: TrainingFreeProxy
+  BATCHSIZE: 96 # AutoFormer | OFA | DARTS | StandardTraining default: 64
+  DATASET: CIFAR10 # AutoFormer | OFA | DARTS | StandardTraining
+  DATAPATH: datasets/cifar10 # AutoFormer | OFA | DARTS | StandardTraining
+  INPUTSIZE: 32 # AutoFormer | OFA | DARTS | StandardTraining
+  COLORJITTER: null # AutoFormer | OFA | DARTS | StandardTraining
+  AA: null # AutoFormer | OFA | DARTS | StandardTraining
+  TRAIN_INTERPOLATION: null # AutoFormer | OFA | DARTS | StandardTraining
+  REPROB: 0. # AutoFormer | OFA | DARTS | StandardTraining
+  REMODE: null # AutoFormer | OFA | DARTS | StandardTraining
+  RECOUNT: null # AutoFormer | OFA | DARTS | StandardTraining
+  CUTOUT: 16 # AutoFormer | OFA | DARTS | StandardTraining
+  AUXWEIGHT: 0.4 # DARTS | StandardTraining
+  LR: 0.025 # DARTS | StandardTraining
+  MOMENTUM: 0.9 # DARTS | StandardTraining
+  WEIGHTDECAY: 3e-4 # DARTS | StandardTraining
+  EPOCHS: 3 # DARTS | StandardTraining default: 600
+  DROPPATHPROB: 0.2 # DARTS | StandardTraining
+  GRAD_CLIP: 5. # DARTS | StandardTraining
+  TESTSTANDARTTRAINING: True # TrainingFreeProxy
+  DATALOAD: random # TrainingFreeProxy
+  DATALOADINFO: 1 # TrainingFreeProxy
+  PROXY: act_grad_cor_weighted # TrainingFreeProxy
+OUTPUT: output
+TAG: test

@@ -1,7 +1,8 @@
 import torch, math
 
-from . import measure
-from ..p_utils import AvgrageMeter
+from lib.proxies.measures import measure
+from lib.proxies.p_utils import AvgrageMeter
+
 
 @measure('zen_score', bn=True, mode='param')
 def compute_zen_score(net, device, inputs, targets, mode, loss_fn, split_data=1, skip_grad=False):
@@ -19,7 +20,13 @@ def compute_zen_score(net, device, inputs, targets, mode, loss_fn, split_data=1,
 
             epsilon = torch.zeros_like(inputs[st:en]).normal_()
             epsilon_ = torch.zeros_like(inputs[st:en]).normal_()
-            zen_score.update((net.forward(epsilon + alpha*epsilon_, pre_GAP=True) - net.forward(epsilon, pre_GAP=True)).norm(p=p).detach().cpu().item(), en - st)
+            out1 = net.forward(epsilon + alpha*epsilon_, pre_GAP=True)
+            if isinstance(out1, tuple):
+                out1 = out1[0]
+            out2 = net.forward(epsilon, pre_GAP=True)
+            if isinstance(out2, tuple):
+                out2 = out2[0]
+            zen_score.update((out1 - out2).norm(p=p).detach().cpu().item(), en - st)
 
     for layer in net.modules():
         if isinstance(layer, torch.nn.BatchNorm2d):

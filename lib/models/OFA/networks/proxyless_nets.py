@@ -60,12 +60,14 @@ class ProxylessNASNets(MyNetwork):
         self.global_avg_pool = MyGlobalAvgPool2d(keep_dim=False)
         self.classifier = classifier
 
-    def forward(self, x):
+    def forward(self, x, pre_GAP=False):
         x = self.first_conv(x)
         for block in self.blocks:
             x = block(x)
         if self.feature_mix_layer is not None:
             x = self.feature_mix_layer(x)
+        if pre_GAP:
+            return x
         x = self.global_avg_pool(x)
         x = self.classifier(x)
         return x

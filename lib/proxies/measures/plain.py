@@ -1,7 +1,5 @@
-import torch
-
-from . import measure
-from ..p_utils import get_layer_metric_array, sum_arr
+from lib.proxies.measures import measure
+from lib.proxies.p_utils import get_layer_metric_array, sum_arr
 
 
 @measure('plain', bn=True, mode='param')
@@ -14,6 +12,8 @@ def compute_plain_per_weight(net, device, inputs, targets, mode, loss_fn, split_
         en=(sp+1)*N//split_data
 
         outputs = net.forward(inputs[st:en])
+        if isinstance(outputs, tuple):
+            outputs = outputs[0]
         loss = loss_fn(outputs, targets[st:en])
         loss.backward()
 

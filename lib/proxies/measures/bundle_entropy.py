@@ -1,6 +1,6 @@
-import torch, math
+import torch
 
-from . import measure
+from lib.proxies.measures import measure
 
 
 def _get_weight_amplitude(layer):

@@ -150,7 +150,7 @@ class OFAProxylessNASNets(ProxylessNASNets):
     def name():
         return "OFAProxylessNASNets"
 
-    def forward(self, x):
+    def forward(self, x, pre_GAP=False):
         # first conv
         x = self.first_conv(x)
         # first block
@@ -165,6 +165,8 @@ class OFAProxylessNASNets(ProxylessNASNets):
 
         # feature_mix_layer
         x = self.feature_mix_layer(x)
+        if pre_GAP:
+            return x
         x = x.mean(3).mean(2)
 
         x = self.classifier(x)

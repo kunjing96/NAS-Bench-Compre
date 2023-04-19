@@ -29,12 +29,14 @@ class ResNets(MyNetwork):
         self.global_avg_pool = MyGlobalAvgPool2d(keep_dim=False)
         self.classifier = classifier
 
-    def forward(self, x):
+    def forward(self, x, pre_GAP=False):
         for layer in self.input_stem:
             x = layer(x)
         x = self.max_pooling(x)
         for block in self.blocks:
             x = block(x)
+        if pre_GAP:
+            return x
         x = self.global_avg_pool(x)
         x = self.classifier(x)
         return x

@@ -80,7 +80,7 @@ _C.SEARCHSTRATEGY.PREDICTOR = 'GMAEPredictor' # PredictorBasedRandom
 # Estimation strategy config files
 _C.ESTIMATIONSTRATEGY = CN()
 _C.ESTIMATIONSTRATEGY.NAME = ''
-_C.ESTIMATIONSTRATEGY.BATCHSIZE = 64 # AutoFormer | OFA | DARTS | StandardTraining default: 64
+_C.ESTIMATIONSTRATEGY.BATCHSIZE = 64 # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy default: 64
 _C.ESTIMATIONSTRATEGY.MODELPATH = '' # AutoFormer | OFA
     # model_ckpts/AutoFormer/supernet-tiny.pth
     # model_ckpts/AutoFormer/supernet-small.pth
@@ -89,34 +89,38 @@ _C.ESTIMATIONSTRATEGY.MODELPATH = '' # AutoFormer | OFA
     # model_ckpts/OFA/ofa_mbv3_d234_e346_k357_w1.2
     # model_ckpts/OFA/ofa_proxyless_d234_e346_k357_w1.3
     # model_ckpts/OFA/ofa_resnet50_d=0+1+2_e=0.2+0.25+0.35_w=0.65+0.8+1.0
-_C.ESTIMATIONSTRATEGY.NUMWORKERS = 10 # AutoFormer | OFA | DARTS | StandardTraining default: 10
-_C.ESTIMATIONSTRATEGY.PINMEM = True # AutoFormer | OFA | DARTS | StandardTraining default: True
+_C.ESTIMATIONSTRATEGY.NUMWORKERS = 10 # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy  default: 10
+_C.ESTIMATIONSTRATEGY.PINMEM = True # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy  default: True
 _C.ESTIMATIONSTRATEGY.AMP = True # AutoFormer | OFA default: True
-_C.ESTIMATIONSTRATEGY.DATASET = '' # AutoFormer | OFA | DARTS | StandardTraining
-_C.ESTIMATIONSTRATEGY.DATAPATH = '' # AutoFormer | OFA | DARTS | StandardTraining
-_C.ESTIMATIONSTRATEGY.INPUTSIZE = 224 # AutoFormer | OFA | DARTS | StandardTraining
-_C.ESTIMATIONSTRATEGY.COLORJITTER = 0.4 # AutoFormer | OFA | DARTS | StandardTraining
-_C.ESTIMATIONSTRATEGY.AA = 'rand-m9-mstd0.5-inc1' # AutoFormer | OFA | DARTS | StandardTraining
-_C.ESTIMATIONSTRATEGY.TRAIN_INTERPOLATION = 'bicubic' # AutoFormer | OFA | DARTS | StandardTraining
-_C.ESTIMATIONSTRATEGY.REPROB = 0.25 # AutoFormer | OFA | DARTS | StandardTraining
-_C.ESTIMATIONSTRATEGY.REMODE = 'pixel' # AutoFormer | OFA | DARTS | StandardTraining
-_C.ESTIMATIONSTRATEGY.RECOUNT = 1 # AutoFormer | OFA | DARTS | StandardTraining
-_C.ESTIMATIONSTRATEGY.INATCATEGORY = None # AutoFormer | OFA | DARTS | StandardTraining
+_C.ESTIMATIONSTRATEGY.DATASET = '' # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy 
+_C.ESTIMATIONSTRATEGY.DATAPATH = '' # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy 
+_C.ESTIMATIONSTRATEGY.INPUTSIZE = 224 # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy 
+_C.ESTIMATIONSTRATEGY.COLORJITTER = 0.4 # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy 
+_C.ESTIMATIONSTRATEGY.AA = 'rand-m9-mstd0.5-inc1' # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy 
+_C.ESTIMATIONSTRATEGY.TRAIN_INTERPOLATION = 'bicubic' # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy 
+_C.ESTIMATIONSTRATEGY.REPROB = 0.25 # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy 
+_C.ESTIMATIONSTRATEGY.REMODE = 'pixel' # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy 
+_C.ESTIMATIONSTRATEGY.RECOUNT = 1 # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy 
+_C.ESTIMATIONSTRATEGY.INATCATEGORY = None # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy 
 _C.ESTIMATIONSTRATEGY.NUMCLASSES = None # AutoFormer | OFA | DARTS | StandardTraining
-_C.ESTIMATIONSTRATEGY.CUTOUT = 0 # AutoFormer | OFA | DARTS | StandardTraining
-_C.ESTIMATIONSTRATEGY.DEVICE = 'cuda' # AutoFormer | OFA | DARTS | StandardTraining default: cuda
+_C.ESTIMATIONSTRATEGY.CUTOUT = 0 # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy 
+_C.ESTIMATIONSTRATEGY.DEVICE = 'cuda' # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy  default: cuda
 _C.ESTIMATIONSTRATEGY.GPU = None # AutoFormer
 _C.ESTIMATIONSTRATEGY.DISTRIBUTED = None # AutoFormer
 _C.ESTIMATIONSTRATEGY.DISTEVAL = None # AutoFormer
-_C.ESTIMATIONSTRATEGY.AUXWEIGHT = 0.4 # DARTS | StandardTraining
-_C.ESTIMATIONSTRATEGY.LR = 0.025 # DARTS | StandardTraining
-_C.ESTIMATIONSTRATEGY.MOMENTUM = 0.9 # DARTS | StandardTraining
-_C.ESTIMATIONSTRATEGY.WEIGHTDECAY = 3e-4 # DARTS | StandardTraining
-_C.ESTIMATIONSTRATEGY.EPOCHS = 600 # DARTS | StandardTraining
-_C.ESTIMATIONSTRATEGY.DROPPATHPROB = 0.2 # DARTS | StandardTraining
-_C.ESTIMATIONSTRATEGY.GRAD_CLIP = 5. # DARTS | StandardTraining
+_C.ESTIMATIONSTRATEGY.AUXWEIGHT = 0.4 # DARTS | StandardTraining | TrainingFreeProxy 
+_C.ESTIMATIONSTRATEGY.LR = 0.025 # DARTS | StandardTraining | TrainingFreeProxy 
+_C.ESTIMATIONSTRATEGY.MOMENTUM = 0.9 # DARTS | StandardTraining | TrainingFreeProxy 
+_C.ESTIMATIONSTRATEGY.WEIGHTDECAY = 3e-4 # DARTS | StandardTraining | TrainingFreeProxy 
+_C.ESTIMATIONSTRATEGY.EPOCHS = 600 # DARTS | StandardTraining | TrainingFreeProxy 
+_C.ESTIMATIONSTRATEGY.DROPPATHPROB = 0.2 # DARTS | StandardTraining | TrainingFreeProxy 
+_C.ESTIMATIONSTRATEGY.GRAD_CLIP = 5. # DARTS | StandardTraining | TrainingFreeProxy 
 _C.ESTIMATIONSTRATEGY.EVALMODE = '' # DARTS
 _C.ESTIMATIONSTRATEGY.TRAINPORTION = 0.9 # StandardTraining
+_C.ESTIMATIONSTRATEGY.TESTSTANDARTTRAINING = True # TrainingFreeProxy
+_C.ESTIMATIONSTRATEGY.DATALOAD = 'random' # TrainingFreeProxy
+_C.ESTIMATIONSTRATEGY.DATALOADINFO = 1 # TrainingFreeProxy
+_C.ESTIMATIONSTRATEGY.PROXY = 'act_grad_cor_weighted' # TrainingFreeProxy
 
 _C.OUTPUT = ''
 _C.TAG = ''

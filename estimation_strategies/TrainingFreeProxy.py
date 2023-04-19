@@ -4,47 +4,33 @@ from timm.utils import accuracy
 import logging
 import tqdm
 from timm.utils.model import unwrap_model
-import numpy as np
 
 from lib.datasets import build_dataset
 from lib.MetricLogger import MetricLogger
 from estimation_strategies import _register
 from estimation_strategies.Base import Base
+from lib.proxies.predictive import find_measures
 
 
 @_register
-class StandardTraining(Base):
+class TrainingFreeProxy(Base):
 
     def __init__(self, config, search_space):
-        super(StandardTraining, self).__init__(config, search_space)
+        super(TrainingFreeProxy, self).__init__(config, search_space)
 
         self.device = torch.device(config.DEVICE)
-        
-        self.train_portion = config.TRAINPORTION
 
         dataset_train, self.n_classes = build_dataset(is_train=True, config=config)
         dataset_test, _ = build_dataset(is_train=False, config=config)
         num_train = len(dataset_train)
         indices = list(range(num_train))
-        if self.train_portion < 1:
-            split = int(np.floor(self.train_portion * num_train))
-        else:
-            split = num_train
         self.train_loader = torch.utils.data.DataLoader(
             dataset_train,
             batch_size=config.BATCHSIZE,
-            sampler=torch.utils.data.sampler.SubsetRandomSampler(indices[:split]),
+            sampler=torch.utils.data.sampler.SubsetRandomSampler(indices),
             pin_memory=config.PINMEM,
             num_workers=config.NUMWORKERS)
-        if self.train_portion < 1:
-            self.val_loader = torch.utils.data.DataLoader(
-              dataset_train,
-              batch_size=config.BATCHSIZE,
-              sampler=torch.utils.data.sampler.SubsetRandomSampler(indices[split:num_train]),
-              pin_memory=config.PINMEM,
-              num_workers=config.NUMWORKERS)     
-        else:
-            self.val_loader = None
+        self.val_loader = None
         self.test_loader = torch.utils.data.DataLoader(dataset_test,
             batch_size=config.BATCHSIZE,
             shuffle=False,
@@ -105,11 +91,7 @@ class StandardTraining(Base):
 
         return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
 
-    def retrain_and_eval(self, genotype):
-        if getattr(self.search_space, 'model_cls', None) is not None:
-            self.model = self.search_space.model_cls(self.input_size, self.input_channels, 36, self.n_classes, 20, self.config.AUXWEIGHT>0, genotype).to(self.device)
-        else:
-            pass # TODO
+    def retrain_and_eval(self):
         # weights optimizer
         self.optimizer = torch.optim.SGD(self.model.parameters(), self.config.LR, momentum=self.config.MOMENTUM, weight_decay=self.config.WEIGHTDECAY)
         self.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, self.config.EPOCHS)
@@ -139,6 +121,16 @@ class StandardTraining(Base):
 
     def __call__(self, arch):
         logging.info("Sampled arch: {}".format(arch))
-        val_res, test_res = self.retrain_and_eval(arch)
-        logging.info("Score: {}\tPerformence: {}".format(val_res, test_res))
-        return val_res['acc1'], test_res['acc1']
+        if getattr(self.search_space, 'model_cls', None) is not None:
+            self.model = self.search_space.model_cls(self.input_size, self.input_channels, 36, self.n_classes, 20, self.config.AUXWEIGHT>0, arch).to(self.device)
+        else:
+            pass # TODO
+        score, _ = find_measures(self.model, self.train_loader, (self.config.DATALOAD, self.config.DATALOADINFO, self.n_classes), self.device, measure_names=[self.config.PROXY])
+        score = score[self.config.PROXY]
+        if self.config.TESTSTANDARTTRAINING:
+            _, test_res = self.retrain_and_eval()
+            logging.info("Score: {}\tPerformence: {}".format(score, test_res))
+            return score, test_res['acc1']
+        else:
+            logging.info("Score: {}\tPerformence: {}".format(score, score))
+            return score, score

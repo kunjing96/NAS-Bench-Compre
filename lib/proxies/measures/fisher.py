@@ -1,11 +1,10 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 import types
 
-from . import measure
-from ..p_utils import get_layer_metric_array, reshape_elements, sum_arr
+from lib.proxies.measures import measure
+from lib.proxies.p_utils import get_layer_metric_array, reshape_elements, sum_arr
 
 
 def fisher_forward_conv2d(self, x):
@@ -72,6 +71,8 @@ def compute_fisher_per_weight(net, device, inputs, targets, loss_fn, mode, split
 
         net.zero_grad()
         outputs = net(inputs[st:en])
+        if isinstance(outputs, tuple):
+            outputs = outputs[0]
         loss = loss_fn(outputs, targets[st:en])
         loss.backward()
 

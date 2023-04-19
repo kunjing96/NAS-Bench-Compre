@@ -136,6 +136,7 @@ class Vision_TransformerSuper(nn.Module):
                 numels.append(module.calc_sampled_param_num())
 
         return sum(numels) + self.sample_embed_dim[0]* (2 +self.patch_embed_super.num_patches)
+
     def get_complexity(self, sequence_length):
         total_flops = 0
         total_flops += self.patch_embed_super.get_complexity(sequence_length)
@@ -144,7 +145,8 @@ class Vision_TransformerSuper(nn.Module):
             total_flops +=  blk.get_complexity(sequence_length+1)
         total_flops += self.head.get_complexity(sequence_length+1)
         return total_flops
-    def forward_features(self, x):
+
+    def forward_features(self, x, pre_GAP=False):
         B = x.shape[0]
         x = self.patch_embed_super(x)
         cls_tokens = self.cls_token[..., :self.sample_embed_dim[0]].expand(B, -1, -1)
@@ -158,14 +160,19 @@ class Vision_TransformerSuper(nn.Module):
             x = blk(x)
         if self.pre_norm:
             x = self.norm(x)
+        
+        if pre_GAP:
+            return x
 
         if self.gp:
             return torch.mean(x[:, 1:] , dim=1)
 
         return x[:, 0]
 
-    def forward(self, x):
-        x = self.forward_features(x)
+    def forward(self, x, pre_GAP=False):
+        x = self.forward_features(x, pre_GAP=pre_GAP)
+        if pre_GAP:
+            return x
         x = self.head(x)
         return x
 

@@ -1,6 +1,6 @@
 import torch, numpy as np
 
-from . import measure
+from lib.proxies.measures import measure
 
 
 def pairwise_distance(x, p=2):
@@ -41,6 +41,8 @@ def compute_feature_distance(net, device, inputs, targets, mode, loss_fn, split_
             en=(sp+1)*N//split_data
 
             out = net.forward(inputs[st:en], pre_GAP=True)
+            if isinstance(out, tuple):
+                out = out[0]
             out = out.reshape(out.size(0), -1)
             outs.append(out)
     outs = torch.cat(outs, 0)

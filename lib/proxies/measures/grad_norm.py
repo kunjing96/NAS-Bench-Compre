@@ -1,9 +1,6 @@
-import torch
 
-import copy
-
-from . import measure
-from ..p_utils import get_layer_metric_array, sum_arr
+from lib.proxies.measures import measure
+from lib.proxies.p_utils import get_layer_metric_array, sum_arr
 
 @measure('grad_norm', bn=True, mode='param')
 def get_grad_norm_arr(net, device, inputs, targets, mode, loss_fn, split_data=1, skip_grad=False):
@@ -14,6 +11,8 @@ def get_grad_norm_arr(net, device, inputs, targets, mode, loss_fn, split_data=1,
         en=(sp+1)*N//split_data
 
         outputs = net.forward(inputs[st:en])
+        if isinstance(outputs, tuple):
+            outputs = outputs[0]
         loss = loss_fn(outputs, targets[st:en])
         loss.backward()
 

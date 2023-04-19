@@ -1,13 +1,15 @@
-import torch, numpy as np
+import torch
 
-from . import measure
-from ..p_utils import mean_arr
+from lib.proxies.measures import measure
+from lib.proxies.p_utils import mean_arr
 
 
 def get_batch_jacobian(net, x):
     net.zero_grad()
     x.requires_grad_(True)
     y = net(x)
+    if isinstance(y, tuple):
+        y = y[0]
     y.backward(torch.ones_like(y))
     jacob = (x.grad).abs_()
 

@@ -144,7 +144,7 @@ class OFAMobileNetV3(MobileNetV3):
     def name():
         return "OFAMobileNetV3"
 
-    def forward(self, x):
+    def forward(self, x, pre_GAP=False):
         # first conv
         x = self.first_conv(x)
         # first block
@@ -156,6 +156,8 @@ class OFAMobileNetV3(MobileNetV3):
             for idx in active_idx:
                 x = self.blocks[idx](x)
         x = self.final_expand_layer(x)
+        if pre_GAP:
+            return x
         x = x.mean(3, keepdim=True).mean(2, keepdim=True)  # global average pooling
         x = self.feature_mix_layer(x)
         x = x.view(x.size(0), -1)

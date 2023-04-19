@@ -1,6 +1,6 @@
 import torch
 
-from . import measure
+from lib.proxies.measures import measure
 
 
 def off_diagonal(x):
@@ -26,8 +26,14 @@ def compute_ssl_score(net, device, inputs, targets, mode, loss_fn, split_data=1,
             epsilon2 = torch.zeros_like(inputs[st:en]).normal_()
             y1 = inputs[st:en] + alpha*epsilon1
             y2 = inputs[st:en] + alpha*epsilon2
-            z1 = net.forward(y1, pre_GAP=True).reshape(en-st, -1)
-            z2 = net.forward(y2, pre_GAP=True).reshape(en-st, -1)
+            z1 = net.forward(y1, pre_GAP=True)
+            if isinstance(z1, tuple):
+                z1 = z1[0]
+            z1 = z1.reshape(en-st, -1)
+            z2 = net.forward(y2, pre_GAP=True)
+            if isinstance(z2, tuple):
+                z2 = z2[0]
+            z2 = z2.reshape(en-st, -1)
             z1s.append(z1)
             z2s.append(z2)
     z1s = torch.cat(z1s, 0)

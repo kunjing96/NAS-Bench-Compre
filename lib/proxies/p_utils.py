@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 
-from ..models import *
 
 def get_some_data(train_dataloader, num_batches, device):
     traindata = []
@@ -13,6 +12,7 @@ def get_some_data(train_dataloader, num_batches, device):
     inputs = inputs.to(device)
     targets = targets.to(device)
     return inputs, targets
+
 
 def get_some_data_grasp(train_dataloader, num_classes, samples_per_class, device):
     datas = [[] for _ in range(num_classes)]
@@ -36,6 +36,7 @@ def get_some_data_grasp(train_dataloader, num_classes, samples_per_class, device
     y = torch.cat([torch.cat(_) for _ in labels]).view(-1).to(device)
     return x, y
 
+
 def get_layer_metric_array(net, metric, mode): 
     metric_array = []
 
@@ -46,6 +47,7 @@ def get_layer_metric_array(net, metric, mode):
             metric_array.append(metric(layer))
     
     return metric_array
+
 
 def reshape_elements(elements, shapes, device):
     def broadcast_val(elements, shapes):
@@ -62,8 +64,6 @@ def reshape_elements(elements, shapes, device):
     else:
         return broadcast_val(elements, shapes)
 
-def count_parameters(model):
-    return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 class AvgrageMeter(object):
 
@@ -80,12 +80,14 @@ class AvgrageMeter(object):
         self.cnt += n
         self.avg = self.sum / self.cnt
 
+
 def sum_arr(arr):
     while None in arr: arr.remove(None)
     sum = 0.
     for i in range(len(arr)):
         sum += torch.sum(arr[i])
     return sum.item()
+
 
 def mean_arr(arr):
     while None in arr: arr.remove(None)

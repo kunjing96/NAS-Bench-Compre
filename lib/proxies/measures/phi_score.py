@@ -1,7 +1,8 @@
 import torch
 
-from . import measure
-from ..p_utils import AvgrageMeter
+from lib.proxies.measures import measure
+from lib.proxies.p_utils import AvgrageMeter
+
 
 @measure('phi_score', bn=False, mode='param')
 @measure('phi_score_bn', bn=True, mode='param')
@@ -18,6 +19,12 @@ def compute_phi_score(net, device, inputs, targets, mode, loss_fn, split_data=1,
 
             epsilon = torch.zeros_like(inputs[st:en]).normal_()
             epsilon_ = torch.zeros_like(inputs[st:en]).normal_()
-            phi_score.update((net.forward(epsilon + alpha*epsilon_, pre_GAP=True) - net.forward(epsilon, pre_GAP=True)).norm(p=p).detach().cpu().item(), en - st)
+            outputs1 = net.forward(epsilon + alpha*epsilon_, pre_GAP=True)
+            if isinstance(outputs1, tuple):
+                outputs1 = outputs1[0]
+            outputs2 = net.forward(epsilon, pre_GAP=True)
+            if isinstance(outputs2, tuple):
+                outputs2 = outputs2[0]
+            phi_score.update((outputs1 - outputs2).norm(p=p).detach().cpu().item(), en - st)
 
     return phi_score.avg

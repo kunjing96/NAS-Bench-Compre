@@ -64,13 +64,15 @@ class SearchCNN(nn.Module):
         self.gap = nn.AdaptiveAvgPool2d(1)
         self.linear = nn.Linear(C_p, n_classes)
 
-    def forward(self, x, weights_normal, weights_reduce, feature_epsilon=None):
+    def forward(self, x, weights_normal, weights_reduce, feature_epsilon=None, pre_GAP=False):
         s0 = s1 = self.stem(x)
 
         for cell in self.cells:
             weights = weights_reduce if cell.reduction else weights_normal
             s0, s1 = s1, cell(s0, s1, weights, feature_epsilon)
 
+        if pre_GAP:
+            return s1
         out = self.gap(s1)
         out = out.view(out.size(0), -1) # flatten
         logits = self.linear(out)
@@ -110,7 +112,7 @@ class SearchCNNController(nn.Module):
 
         self.net = SearchCNN(C_in, C, n_classes, n_layers, n_nodes, stem_multiplier)
 
-    def forward(self, x, uniform_forward=False, alpha_epsilon=None, feature_epsilon=None):
+    def forward(self, x, uniform_forward=False, alpha_epsilon=None, feature_epsilon=None, pre_GAP=False):
         if uniform_forward:
             weights_normal = [F.softmax(torch.zeros_like(alpha), dim=-1) for alpha in self.alpha_normal]
             weights_reduce = [F.softmax(torch.zeros_like(alpha), dim=-1) for alpha in self.alpha_reduce]
@@ -133,7 +135,7 @@ class SearchCNNController(nn.Module):
                 w = w.div(w.sum())
 
         if len(self.device_ids) == 1:
-            return self.net(x, weights_normal, weights_reduce, feature_epsilon)
+            return self.net(x, weights_normal, weights_reduce, feature_epsilon, pre_GAP=pre_GAP)
 
         # scatter x
         xs = nn.parallel.scatter(x, self.device_ids)
@@ -144,9 +146,10 @@ class SearchCNNController(nn.Module):
         replicas = nn.parallel.replicate(self.net, self.device_ids)
         # broadcast epsilon
         feature_epsilon_copies = [ feature_epsilon ] * len(self.device_ids)
+        pre_GAP_copies = [ pre_GAP ] * len(self.device_ids)
 
         outputs = nn.parallel.parallel_apply(replicas,
-                                             list(zip(xs, wnormal_copies, wreduce_copies, feature_epsilon_copies)),
+                                             list(zip(xs, wnormal_copies, wreduce_copies, feature_epsilon_copies, pre_GAP_copies)),
                                              devices=self.device_ids)
         return nn.parallel.gather(outputs, self.device_ids[0])
 

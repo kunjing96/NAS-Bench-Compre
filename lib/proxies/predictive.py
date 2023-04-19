@@ -2,12 +2,11 @@ import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
-from .p_utils import *
-from . import measures
-
 import types
 import copy
+
+from lib.proxies.p_utils import get_some_data, get_some_data_grasp
+from lib.proxies.measures import available_proxy, calc_measure
 
 
 def no_op(self,x):
@@ -25,7 +24,7 @@ def copynet(self, bn):
 
 def find_measures_arrays(net_orig, trainloader, dataload_info, device, measure_names=None, loss_fn=F.cross_entropy):
     if measure_names is None:
-        measure_names = measures.available_measures
+        measure_names = available_proxy()
 
     dataload, num_imgs_or_batches, num_classes = dataload_info
 
@@ -54,7 +53,7 @@ def find_measures_arrays(net_orig, trainloader, dataload_info, device, measure_n
             for measure_name in measure_names:
                 if measure_name not in measure_values:
                     start_time = time.time()
-                    val = measures.calc_measure(measure_name, net_orig, device, inputs, targets, loss_fn=loss_fn, split_data=ds)
+                    val = calc_measure(measure_name, net_orig, device, inputs, targets, loss_fn=loss_fn, split_data=ds)
                     end_time   = time.time()
                     measure_values[measure_name] = val
                     measure_times[measure_name]  = end_time - start_time

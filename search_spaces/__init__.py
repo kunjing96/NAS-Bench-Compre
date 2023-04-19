@@ -14,6 +14,8 @@ def get_search_space(config):
 
 
 def _register(cls):
+    if cls.__name__ in __SEARCH_SPACE_DICT:
+        raise KeyError(f'Duplicated search space! {cls.__name__}')
     __SEARCH_SPACE_DICT.update({cls.__name__: cls})
     return cls
 

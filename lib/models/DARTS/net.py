@@ -80,7 +80,7 @@ class Network(nn.Module):
         self.gap = nn.AdaptiveAvgPool2d(1)
         self.linear = nn.Linear(C_p, n_classes)
 
-    def forward(self, x):
+    def forward(self, x, pre_GAP=False):
         s0 = s1 = self.stem(x)
 
         aux_logits = None
@@ -89,6 +89,8 @@ class Network(nn.Module):
             if i == self.aux_pos and self.training:
                 aux_logits = self.aux_head(s1)
 
+        if pre_GAP:
+            return s1
         out = self.gap(s1)
         out = out.view(out.size(0), -1) # flatten
         logits = self.linear(out)

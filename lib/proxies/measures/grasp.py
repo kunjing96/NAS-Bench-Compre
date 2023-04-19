@@ -1,9 +1,8 @@
-import torch
 import torch.nn as nn
 import torch.autograd as autograd
 
-from . import measure
-from ..p_utils import get_layer_metric_array, sum_arr
+from lib.proxies.measures import measure
+from lib.proxies.p_utils import get_layer_metric_array, sum_arr
 
 
 @measure('grasp', bn=True, mode='param')
@@ -29,6 +28,8 @@ def compute_grasp_per_weight(net, device, inputs, targets, mode, loss_fn, T=1, n
         for _ in range(num_iters):
             #TODO get new data, otherwise num_iters is useless!
             outputs = net.forward(inputs[st:en])/T
+            if isinstance(outputs, tuple):
+                outputs = outputs[0]
             loss = loss_fn(outputs, targets[st:en])
             grad_w_p = autograd.grad(loss, weights, allow_unused=True)
             if grad_w is None:
@@ -44,6 +45,8 @@ def compute_grasp_per_weight(net, device, inputs, targets, mode, loss_fn, T=1, n
 
         # forward/grad pass #2
         outputs = net.forward(inputs[st:en])/T
+        if isinstance(outputs, tuple):
+            outputs = outputs[0]
         loss = loss_fn(outputs, targets[st:en])
         grad_f = autograd.grad(loss, weights, create_graph=True, allow_unused=True)
 
