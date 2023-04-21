@@ -22,14 +22,29 @@ class AgingEvolution(Base):
             decoded_arch = self.search_space.decode(arch)
             k = random.choice(list(self.search_space.choices.keys()))
             if k in ['depth']:
-                new_depth = random.choice(self.search_space.choices[k])
-                if new_depth > decoded_arch[k]:
-                    decoded_arch['mlp_ratio'] = decoded_arch['mlp_ratio'] + [random.choice(self.search_space.choices['mlp_ratio']) for _ in range(new_depth - decoded_arch[k])]
-                    decoded_arch['num_heads'] = decoded_arch['num_heads'] + [random.choice(self.search_space.choices['num_heads']) for _ in range(new_depth - decoded_arch[k])]
+                if isinstance(decoded_arch[k], list):
+                    new_depth = []
+                    for i in range(len(decoded_arch[k])):
+                        new_depth.append(random.choice(self.search_space.choices[k][i]))
+                        left = sum(decoded_arch[k][:i])
+                        right = sum(decoded_arch[k][:i+1])
+                        if new_depth[-1] > decoded_arch[k][i]:
+                            decoded_arch['num_heads'] = decoded_arch['num_heads'][:right] + [random.choice(self.search_space.choices['num_heads'][i]) for _ in range(new_depth[-1] - decoded_arch[k][i])] + decoded_arch['num_heads'][right:]
+                            decoded_arch['window_size'] = decoded_arch['window_size'][:right] + [random.choice(self.search_space.choices['window_size']) for _ in range(new_depth[-1] - decoded_arch[k][i])] + decoded_arch['window_size'][right:]
+                            decoded_arch['mlp_ratio'] = decoded_arch['mlp_ratio'][:right] + [random.choice(self.search_space.choices['mlp_ratio']) for _ in range(new_depth[-1] - decoded_arch[k][i])] + decoded_arch['mlp_ratio'][right:]
+                        else:
+                            decoded_arch['num_heads'] = decoded_arch['num_heads'][:left] + decoded_arch['num_heads'][left:right][:decoded_arch[k][i]] + decoded_arch['num_heads'][right:]
+                            decoded_arch['window_size'] = decoded_arch['window_size'][:left] + decoded_arch['window_size'][left:right][:decoded_arch[k][i]] + decoded_arch['window_size'][right:]
+                            decoded_arch['mlp_ratio'] = decoded_arch['mlp_ratio'][:left] + decoded_arch['mlp_ratio'][left:right][:decoded_arch[k][i]] + decoded_arch['mlp_ratio'][right:]
                 else:
-                    decoded_arch['mlp_ratio'] = decoded_arch['mlp_ratio'][:new_depth]
-                    decoded_arch['num_heads'] = decoded_arch['num_heads'][:new_depth]
-                decoded_arch['depth'] = new_depth
+                    new_depth = random.choice(self.search_space.choices[k])
+                    if new_depth > decoded_arch[k]:
+                        decoded_arch['mlp_ratio'] = decoded_arch['mlp_ratio'] + [random.choice(self.search_space.choices['mlp_ratio']) for _ in range(new_depth - decoded_arch[k])]
+                        decoded_arch['num_heads'] = decoded_arch['num_heads'] + [random.choice(self.search_space.choices['num_heads']) for _ in range(new_depth - decoded_arch[k])]
+                    else:
+                        decoded_arch['mlp_ratio'] = decoded_arch['mlp_ratio'][:new_depth]
+                        decoded_arch['num_heads'] = decoded_arch['num_heads'][:new_depth]
+                    decoded_arch[k] = new_depth
             elif k in ['w']:
                 i = random.choice(range(len(decoded_arch[k])))
                 w_choice = [
@@ -44,7 +59,18 @@ class AgingEvolution(Base):
                 decoded_arch[k][i] = random.choice(w_choice[i])
             elif isinstance(decoded_arch[k], list):
                 i = random.choice(range(len(decoded_arch[k])))
-                decoded_arch[k][i] = random.choice(self.search_space.choices[k])
+                if isinstance(self.search_space.choices[k][0], list):
+                    if len(decoded_arch[k]) == len(self.search_space.choices[k]):
+                        decoded_arch[k][i] = random.choice(self.search_space.choices[k][i])
+                    elif isinstance(decoded_arch['depth'], list) and len(decoded_arch['depth']) == len(self.search_space.choices[k]):
+                        for j, d in enumerate(decoded_arch['depth']):
+                            if i - sum(decoded_arch['depth'][:j+1]) < 0:
+                                break
+                        decoded_arch[k][i] = random.choice(self.search_space.choices[k][j])
+                    else:
+                        raise ValueError
+                else:
+                    decoded_arch[k][i] = random.choice(self.search_space.choices[k])
             else:
                 decoded_arch[k] = random.choice(self.search_space.choices[k])
             return self.search_space.encode(decoded_arch)
