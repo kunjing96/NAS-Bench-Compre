@@ -2,7 +2,7 @@
 
 ## Introduction
 
-NAS-Bench-ALL is a benchmark for neural architecture search (NAS), which aims to provide a fair and comprehensive evaluation of **search spaces**, **search strategies**, **estimation strategies**.
+NAS-Bench-ALL is a benchmark for neural architecture search (NAS), which aims to provide a fair and comprehensive evaluation of **search spaces**, **search strategies**, **estimation strategies**. The NAS algorithms he currently supports include: DARTS, GMAENAS, NAG, OFA, AutoFormer, ViTSoup, TrainingFreeNAS.
 
 This repostory contains six main files and directories:
 
@@ -12,6 +12,12 @@ This repostory contains six main files and directories:
 - search_strategies: The directory of search strategies.
 - estimation_strategies: The directory of estimation strategies.
 - api.py: It defines the class API to use this benchmark.
+
+In addition, there are also some other directories that store model files, datasets, and output logs:
+
+- datasets: The directory of datasets.
+- model-ckpts:  The directory of model checkpoint. Download the necessary files of model checkpoints in Baidu Netdisk (link: https://pan.baidu.com/s/1PbxCrxqfDK-VG3d99ezJEA?pwd=ccip).
+- output: The directory of output log files.
 
 ## Features
 
