@@ -10,6 +10,8 @@ from lib.datasets import build_dataset
 from lib.MetricLogger import MetricLogger
 from estimation_strategies import _register
 from estimation_strategies.Base import Base
+from lib.nets.DARTS.net import Network
+from lib.nets.NAG.model import NASNetworkCIFAR, NASNetworkImageNet
 
 
 @_register
@@ -107,7 +109,13 @@ class StandardTraining(Base):
 
     def retrain_and_eval(self, genotype):
         if getattr(self.search_space, 'model_cls', None) is not None:
-            self.model = self.search_space.model_cls(self.input_size, self.input_channels, 36, self.n_classes, 20, self.config.AUXWEIGHT>0, genotype).to(self.device)
+            if self.search_space.model_cls is Network:
+                self.model = self.search_space.model_cls(self.input_size, self.input_channels, 36, self.n_classes, 20, self.config.AUXWEIGHT>0, genotype).to(self.device)
+            elif self.search_space.model_cls is NASNetworkCIFAR or self.search_space.model_cls is NASNetworkImageNet:
+                layers = 6 if self.search_space.model_cls is NASNetworkCIFAR else 4
+                channels = 36 if self.search_space.model_cls is NASNetworkCIFAR else 48
+                keep_prob = 0.6 if self.search_space.model_cls is NASNetworkCIFAR else 1.0
+                self.model = self.search_space.model_cls(self.n_classes, layers, channels, keep_prob, 1 - self.config.DROPPATHPROB, self.config.AUXWEIGHT>0, int(np.ceil(45000 / self.config.BATCHSIZE)) * self.config.EPOCHS, genotype).to(self.device)
         else:
             pass # TODO
         # weights optimizer
@@ -121,8 +129,9 @@ class StandardTraining(Base):
         # training loop
         for epoch in tqdm.tqdm(range(self.config.EPOCHS)):
             self.lr_scheduler.step()
-            drop_prob = self.config.DROPPATHPROB * epoch / self.config.EPOCHS
-            model_module.drop_path_prob(drop_prob)
+            if hasattr(model_module, 'drop_path_prob') and self.config.DROPPATHPROB is not None:
+                drop_prob = self.config.DROPPATHPROB * epoch / self.config.EPOCHS
+                model_module.drop_path_prob(drop_prob)
             # training
             self.train()
             # validation

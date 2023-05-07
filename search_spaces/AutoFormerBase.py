@@ -1,6 +1,6 @@
 from search_spaces import _register
 from search_spaces.AutoFormerTiny import AutoFormerTiny
-from lib.models.AutoFormer import Vision_TransformerSuper
+from lib.nets.AutoFormer import Vision_TransformerSuper
 
 
 @_register

@@ -1,0 +1,1 @@
+from lib.nets.AutoFormer.supernet_transformer import Vision_TransformerSuper

@@ -1,6 +1,8 @@
 import os
 import yaml
 from yacs.config import CfgNode as CN
+import torch
+
 
 _C = CN()
 
@@ -16,6 +18,12 @@ _C.SEARCHSPACE.MINFLOPS = None # AutoFormerTiny/Small/Base | OFA_MBV3/MBV3L/Prox
 _C.SEARCHSPACE.MAXFLOPS = None # AutoFormerTiny/Small/Base | OFA_MBV3/MBV3L/Proxylexx/ResNet50
 _C.SEARCHSPACE.MINDELAY = None # AutoFormerTiny/Small/Base | OFA_MBV3/MBV3L/Proxylexx/ResNet50
 _C.SEARCHSPACE.MAXDELAY = None # AutoFormerTiny/Small/Base | OFA_MBV3/MBV3L/Proxylexx/ResNet50
+_C.SEARCHSPACE.GENERATOR = None # NAG
+_C.SEARCHSPACE.STATEDICTPATH = None # NAG
+_C.SEARCHSPACE.DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu' # NAG
+_C.SEARCHSPACE.IMAGENET = False
+_C.SEARCHSPACE.PERFLABEL = 2
+_C.SEARCHSPACE.PARAMLABEL = 0
 
 # Search strategy config files
 _C.SEARCHSTRATEGY = CN()
@@ -27,7 +35,7 @@ _C.SEARCHSTRATEGY.TOURNAMENTSIZE = 10 # AgingEvolution default: 10
 _C.SEARCHSTRATEGY.NUMPARENTS = 1 # AgingEvolution
 _C.SEARCHSTRATEGY.NUMUTATES = 1 # AgingEvolution default: 1 or 100
 _C.SEARCHSTRATEGY.NUMPOPULATION = 64 # AgingEvolution default: 64
-_C.SEARCHSTRATEGY.DEVICE = 'cuda' # DARTS default: cuda
+_C.SEARCHSTRATEGY.DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu' # DARTS default: cuda
 _C.SEARCHSTRATEGY.DATASET = '' # DARTS
 _C.SEARCHSTRATEGY.DATAPATH = '' # DARTS
 _C.SEARCHSTRATEGY.INPUTSIZE = 28 # DARTS
@@ -104,7 +112,7 @@ _C.ESTIMATIONSTRATEGY.RECOUNT = 1 # AutoFormer | OFA | DARTS | StandardTraining 
 _C.ESTIMATIONSTRATEGY.INATCATEGORY = None # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy 
 _C.ESTIMATIONSTRATEGY.NUMCLASSES = None # AutoFormer | OFA | DARTS | StandardTraining
 _C.ESTIMATIONSTRATEGY.CUTOUT = 0 # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy 
-_C.ESTIMATIONSTRATEGY.DEVICE = 'cuda' # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy  default: cuda
+_C.ESTIMATIONSTRATEGY.DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu' # AutoFormer | OFA | DARTS | StandardTraining | TrainingFreeProxy  default: cuda
 _C.ESTIMATIONSTRATEGY.GPU = None # AutoFormer
 _C.ESTIMATIONSTRATEGY.DISTRIBUTED = None # AutoFormer
 _C.ESTIMATIONSTRATEGY.DISTEVAL = None # AutoFormer

@@ -5,7 +5,7 @@ import glob
 __PREDICTOR_DICT = {}
 
 
-def available_predictor():
+def available_predictors():
     return __PREDICTOR_DICT.keys()
 
 

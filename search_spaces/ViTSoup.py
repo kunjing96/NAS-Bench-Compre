@@ -6,7 +6,7 @@ from timm.utils.model import unwrap_model
 
 from search_spaces import _register
 from search_spaces.Base import Base
-from lib.models.ViTSoup import ViTSoup as ViTSoupModel
+from lib.nets.ViTSoup import ViTSoup as ViTSoupModel
 
 
 @_register

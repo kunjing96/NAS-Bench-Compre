@@ -11,7 +11,7 @@ from lib.MetricLogger import MetricLogger
 from lib.download import download_url
 from estimation_strategies import _register
 from estimation_strategies.Base import Base
-from lib.models.OFA.elastic_nn.utils import set_running_statistics
+from lib.nets.OFA.elastic_nn.utils import set_running_statistics
 
 
 @_register

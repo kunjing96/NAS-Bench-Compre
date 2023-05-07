@@ -3,9 +3,9 @@ import numpy as np
 
 from search_spaces import _register
 from search_spaces.Base import Base
-from lib.models.DARTS.genotypes import PRIMITIVES, Genotype
-from lib.models.DARTS.search_net import SearchCNNController
-from lib.models.DARTS.net import Network
+from lib.nets.DARTS.genotypes import PRIMITIVES, Genotype
+from lib.nets.DARTS.search_net import SearchCNNController
+from lib.nets.DARTS.net import Network
 
 
 @_register

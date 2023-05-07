@@ -9,7 +9,7 @@ from tqdm.contrib import tzip
 from search_strategies import _register
 from search_strategies.Base import Base
 from lib.datasets import build_dataset
-from lib.models.DARTS.architect import Architect
+from lib.nets.DARTS.architect import Architect
 from lib.MetricLogger import MetricLogger
 
 
