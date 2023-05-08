@@ -219,8 +219,8 @@ class NAGMultiObj(nn.Module):
         super(NAGMultiObj, self).__init__()
         self.perf_label_embedding = nn.Embedding(opt.NUMPERFS, opt.PERFEMBSIZE)
         self.param_label_embedding = nn.Embedding(opt.NUMPARAMS, opt.PARAMEMBSIZE)
-        self.conv_generator = Generator(opt, opt.latent_dim+opt.PERFEMBSIZE+opt.PARAMEMBSIZE)
-        self.reduc_generator = Generator(opt, opt.latent_dim+opt.PERFEMBSIZE+opt.PARAMEMBSIZE)
+        self.conv_generator = Generator(opt, opt.LATENTDIM+opt.PERFEMBSIZE+opt.PARAMEMBSIZE)
+        self.reduc_generator = Generator(opt, opt.LATENTDIM+opt.PERFEMBSIZE+opt.PARAMEMBSIZE)
 
     def forward(self, z, perf_labels, param_labels):
         z_label = torch.cat([z, F.normalize(self.perf_label_embedding(perf_labels), dim=-1), F.normalize(self.param_label_embedding(param_labels), dim=-1)], -1)

@@ -1,7 +1,7 @@
 SEARCHSPACE:
   NAME: NAG
   GENERATOR: NAG # NAGMultiObj
-  STATEDICTPATH: null # model_ckpts/NAG/generator.pkl # NAG model_ckpts/NAG/generator_multiobj.pkl
+  STATEDICTPATH: model_ckpts/NAG/generator.pkl # model_ckpts/NAG/generator.pkl # NAG model_ckpts/NAG/generator_multiobj.pkl
   PERFLABEL: 2 # NAG
   PARAMLABEL: 0 # NAG
 SEARCHSTRATEGY:
