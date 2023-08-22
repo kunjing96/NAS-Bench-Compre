@@ -1,8 +1,8 @@
-# NAS-Bench-COMPRE: A Comprehensive Neural Architecture Search Benchmark with Decoupled Components
+# NAS-Bench-Compre: A Comprehensive Neural Architecture Search Benchmark with Decoupled Components
 
 ## Introduction
 
-NAS-Bench-COMPRE is a benchmark for neural architecture search (NAS), which aims to provide a fair and comprehensive evaluation of **search spaces**, **search strategies**, **estimation strategies**. The NAS algorithms he currently supports include: DARTS, GMAENAS, NAG, OFA, AutoFormer, ViTSoup, TrainingFreeNAS.
+NAS-Bench-Compre is a benchmark for neural architecture search (NAS), which aims to provide a fair and comprehensive evaluation of **search spaces**, **search strategies**, **estimation strategies**. The NAS algorithms he currently supports include: DARTS, GMAENAS, NAG, OFA, AutoFormer, ViTSoup, TrainingFreeNAS.
 
 This repostory contains six main files and directories:
 
@@ -27,9 +27,9 @@ In addition, there are also some other directories that store model files, datas
 
 ## Getting Started
 
-To use NAS-Bench-COMPRE, follow these steps:
+To use NAS-Bench-Compre, follow these steps:
 
-1. Clone the repository: `git clone https://github.com/kunjing96/NAS-Bench-COMPRE`
+1. Clone the repository: `git clone https://github.com/kunjing96/NAS-Bench-Compre`
 2. Install the necessary dependencies: `pip install -r requirements.txt`
 3. Add your search spaces, search strategies, or estimation strategies:
     - Create a your file for your search space, search strategy, or estimation strategy in corresponding directory
